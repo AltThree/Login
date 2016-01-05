@@ -11,16 +11,16 @@
 
 namespace AltThree\Login;
 
+use AltThree\Login\Exceptions\CannotAccessEmailsException;
+use AltThree\Login\Exceptions\InvalidStateException;
+use AltThree\Login\Exceptions\NoAccessTokenException;
+use AltThree\Login\Exceptions\NoEmailException;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use AltThree\Login\Exceptions\CannotAccessEmailsException;
-use AltThree\Login\Exceptions\InvalidStateException;
-use AltThree\Login\Exceptions\NoAccessTokenException;
-use AltThree\Login\Exceptions\NoEmailException;
 use Throwable;
 
 /**

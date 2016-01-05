@@ -11,10 +11,10 @@
 
 namespace AltThree\Tests\Login;
 
-use GrahamCampbell\TestBench\AbstractPackageTestCase;
-use GrahamCampbell\TestBenchCore\ServiceProviderTrait;
 use AltThree\Login\LoginProvider;
 use AltThree\Login\LoginServiceProvider;
+use GrahamCampbell\TestBench\AbstractPackageTestCase;
+use GrahamCampbell\TestBenchCore\ServiceProviderTrait;
 
 /**
  * This is the service provider test class.
