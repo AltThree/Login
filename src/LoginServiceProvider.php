@@ -11,8 +11,10 @@
 
 namespace AltThree\Login;
 
-use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Container\Container;
+use Illuminate\Foundation\Application as LaravelApplication;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Lumen\Application as LumenApplication;
 
 /**
  * This is the login service provider class.
@@ -40,7 +42,11 @@ class LoginServiceProvider extends ServiceProvider
     {
         $source = realpath(__DIR__.'/../config/login.php');
 
-        $this->publishes([$source => config_path('login.php')]);
+        if ($this->app instanceof LaravelApplication && $this->app->runningInConsole()) {
+            $this->publishes([$source => config_path('login.php')]);
+        } elseif ($this->app instanceof LumenApplication) {
+            $this->app->configure('login');
+        }
 
         $this->mergeConfigFrom($source, 'login');
     }
@@ -62,7 +68,7 @@ class LoginServiceProvider extends ServiceProvider
      */
     protected function registerLoginProvider()
     {
-        $this->app->singleton('login.provider', function (Application $app) {
+        $this->app->singleton('login.provider', function (Container $app) {
             $request = $app['request'];
             $clientId = $app->config->get('login.id');
             $clientSecret = $app->config->get('login.secret');
