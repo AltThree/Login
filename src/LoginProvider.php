@@ -197,17 +197,18 @@ class LoginProvider
         $user = json_decode((string) $response->getBody(), true);
 
         try {
-            if ($email = $this->getEmail($token)) {
-                $user['email'] = $email;
-            } else {
-                throw new NoEmailException('Unable to find valid email address.');
-            }
+            $email = $this->getEmail($token);
         } catch (Exception $e) {
             throw new CannotAccessEmailsException('Unable to access the user\'s email addresses.');
         } catch (Throwable $e) {
             throw new CannotAccessEmailsException('Unable to access the user\'s email addresses.');
         }
 
+        if (empty($email)) {
+            throw new NoEmailException('Unable to find valid email address.');
+        }
+
+        $user['email'] = $email;
         $user['token'] = $token;
 
         return $user;
