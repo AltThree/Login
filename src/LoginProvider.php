@@ -12,6 +12,7 @@
 namespace AltThree\Login;
 
 use AltThree\Login\Exceptions\CannotAccessEmailsException;
+use AltThree\Login\Exceptions\InvalidEmailException;
 use AltThree\Login\Exceptions\InvalidStateException;
 use AltThree\Login\Exceptions\NoAccessTokenException;
 use AltThree\Login\Exceptions\NoEmailException;
@@ -227,7 +228,7 @@ class LoginProvider
         foreach ($emails as $email) {
             if ($email['primary'] && $email['verified']) {
                 if (strpos($email['email'], 'noreply') !== false) {
-                    throw new InvalidEmailException('Unable to use a no reply primary email address.')
+                    throw new InvalidEmailException('Unable to use a no reply primary email address.');
                 }
 
                 return $email['email'];
