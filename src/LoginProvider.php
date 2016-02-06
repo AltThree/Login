@@ -185,6 +185,7 @@ class LoginProvider
      * @param string $token
      *
      * @throws \AltThree\Login\Exceptions\CannotAccessEmailsException
+     * @throws \AltThree\Login\Exceptions\InvalidEmailException
      * @throws \AltThree\Login\Exceptions\NoEmailException
      *
      * @return string[]
@@ -194,24 +195,10 @@ class LoginProvider
         $options = ['headers' => ['Accept' => 'application/vnd.github.v3+json']];
 
         $response = $this->client->get('https://api.github.com/user?access_token='.$token, $options);
-        $user = json_decode((string) $response->getBody(), true);
 
-        try {
-            $email = $this->getEmail($token);
-        } catch (Exception $e) {
-            throw new CannotAccessEmailsException('Unable to access the user\'s email addresses.');
-        } catch (Throwable $e) {
-            throw new CannotAccessEmailsException('Unable to access the user\'s email addresses.');
-        }
+        $user = (array) json_decode((string) $response->getBody(), true);
 
-        if (empty($email)) {
-            throw new NoEmailException('Unable to find valid email address.');
-        }
-
-        $user['email'] = $email;
-        $user['token'] = $token;
-
-        return $user;
+        return array_merge($user, ['email' => $this->getEmail($token), 'token' => $token]);
     }
 
     /**
@@ -219,20 +206,35 @@ class LoginProvider
      *
      * @param string $token
      *
-     * @return string|null
+     * @throws \AltThree\Login\Exceptions\CannotAccessEmailsException
+     * @throws \AltThree\Login\Exceptions\InvalidEmailException
+     * @throws \AltThree\Login\Exceptions\NoEmailException
+     *
+     * @return string
      */
     protected function getEmail($token)
     {
-        $options = ['headers' => ['Accept' => 'application/vnd.github.v3+json']];
-
-        $response = $this->client->get('https://api.github.com/user/emails?access_token='.$token, $options);
-        $emails = json_decode((string) $response->getBody(), true);
+        try {
+            $options = ['headers' => ['Accept' => 'application/vnd.github.v3+json']];
+            $response = $this->client->get('https://api.github.com/user/emails?access_token='.$token, $options);
+            $emails = (array) json_decode((string) $response->getBody(), true);
+        } catch (Exception $e) {
+            throw new CannotAccessEmailsException('Unable to access the user\'s email addresses.');
+        } catch (Throwable $e) {
+            throw new CannotAccessEmailsException('Unable to access the user\'s email addresses.');
+        }
 
         foreach ($emails as $email) {
-            if ($email['primary'] && $email['verified'] && strpos($email['email'], '@users.noreply.github.com') === false) {
+            if ($email['primary'] && $email['verified']) {
+                if (strpos($email['email'], 'noreply') !== false) {
+                    throw new InvalidEmailException('Unable to use a no reply primary email address.')
+                }
+
                 return $email['email'];
             }
         }
+
+        throw new NoEmailException('Unable to find verified primary email address.');
     }
 
     /**
