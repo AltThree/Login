@@ -44,4 +44,17 @@ return [
 
     'redirect' => '',
 
+    /*
+    |--------------------------------------------------------------------------
+    | Allowed Users
+    |--------------------------------------------------------------------------
+    |
+    | This defines list of allowed users. Empty means allow everyone.
+    |
+    | Default to [].
+    |
+    */
+
+    'allowed' => [],
+
 ];
