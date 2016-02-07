@@ -16,6 +16,7 @@ use AltThree\Login\Exceptions\InvalidEmailException;
 use AltThree\Login\Exceptions\InvalidStateException;
 use AltThree\Login\Exceptions\NoAccessTokenException;
 use AltThree\Login\Exceptions\NoEmailException;
+use AltThree\Login\Exceptions\NotWhitelistedException;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
@@ -60,6 +61,13 @@ class LoginProvider
     protected $redirectUrl;
 
     /**
+     * The allowed user ids.
+     *
+     * @var int[]
+     */
+    protected $allowed;
+
+    /**
      * The guzzle http client.
      *
      * @var \GuzzleHttp\ClientInterface
@@ -73,16 +81,18 @@ class LoginProvider
      * @param string                           $clientId
      * @param string                           $clientSecret
      * @param string                           $redirectUrl
+     * @param int[]                            $allowed
      * @param \GuzzleHttp\ClientInterface|null $client
      *
      * @return void
      */
-    public function __construct(Request $request, $clientId, $clientSecret, $redirectUrl, ClientInterface $client = null)
+    public function __construct(Request $request, $clientId, $clientSecret, $redirectUrl, array $allowed = [], ClientInterface $client = null)
     {
         $this->request = $request;
         $this->clientId = $clientId;
         $this->redirectUrl = $redirectUrl;
         $this->clientSecret = $clientSecret;
+        $this->allowed = $allowed;
         $this->client = $client ?: new Client();
     }
 
@@ -130,7 +140,11 @@ class LoginProvider
     /**
      * Get the authenticated user's details.
      *
+     * @throws \AltThree\Login\Exceptions\CannotAccessEmailsException
+     * @throws \AltThree\Login\Exceptions\InvalidEmailException
      * @throws \AltThree\Login\Exceptions\InvalidStateException
+     * @throws \AltThree\Login\Exceptions\NoEmailException
+     * @throws \AltThree\Login\Exceptions\NotWhitelistedException
      *
      * @return string[]
      */
@@ -188,6 +202,7 @@ class LoginProvider
      * @throws \AltThree\Login\Exceptions\CannotAccessEmailsException
      * @throws \AltThree\Login\Exceptions\InvalidEmailException
      * @throws \AltThree\Login\Exceptions\NoEmailException
+     * @throws \AltThree\Login\Exceptions\NotWhitelistedException
      *
      * @return string[]
      */
@@ -198,6 +213,10 @@ class LoginProvider
         $response = $this->client->get('https://api.github.com/user?access_token='.$token, $options);
 
         $user = (array) json_decode((string) $response->getBody(), true);
+
+        if ($this->allowed && !in_array($user['id'], $this->allowed)) {
+            throw new NotWhitelistedException('The user is not whitelisted.');
+        }
 
         return array_merge($user, ['email' => $this->getEmail($token), 'token' => $token]);
     }
