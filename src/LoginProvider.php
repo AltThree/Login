@@ -14,6 +14,7 @@ namespace AltThree\Login;
 use AltThree\Login\Exceptions\CannotAccessEmailsException;
 use AltThree\Login\Exceptions\InvalidEmailException;
 use AltThree\Login\Exceptions\InvalidStateException;
+use AltThree\Login\Exceptions\IsBlacklistedException;
 use AltThree\Login\Exceptions\NoAccessTokenException;
 use AltThree\Login\Exceptions\NoEmailException;
 use AltThree\Login\Exceptions\NotWhitelistedException;
@@ -152,6 +153,7 @@ class LoginProvider
      * @throws \AltThree\Login\Exceptions\CannotAccessEmailsException
      * @throws \AltThree\Login\Exceptions\InvalidEmailException
      * @throws \AltThree\Login\Exceptions\InvalidStateException
+     * @throws \AltThree\Login\Exceptions\IsBlacklistedException
      * @throws \AltThree\Login\Exceptions\NoEmailException
      * @throws \AltThree\Login\Exceptions\NotWhitelistedException
      *
@@ -210,6 +212,7 @@ class LoginProvider
      *
      * @throws \AltThree\Login\Exceptions\CannotAccessEmailsException
      * @throws \AltThree\Login\Exceptions\InvalidEmailException
+     * @throws \AltThree\Login\Exceptions\IsBlacklistedException
      * @throws \AltThree\Login\Exceptions\NoEmailException
      * @throws \AltThree\Login\Exceptions\NotWhitelistedException
      *
