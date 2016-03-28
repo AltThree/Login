@@ -68,6 +68,13 @@ class LoginProvider
     protected $allowed;
 
     /**
+     * The blocked user ids.
+     *
+     * @var int[]
+     */
+    protected $blocked;
+
+    /**
      * The guzzle http client.
      *
      * @var \GuzzleHttp\ClientInterface
@@ -82,17 +89,19 @@ class LoginProvider
      * @param string                           $clientSecret
      * @param string                           $redirectUrl
      * @param int[]                            $allowed
+     * @param int[]                            $blocked
      * @param \GuzzleHttp\ClientInterface|null $client
      *
      * @return void
      */
-    public function __construct(Request $request, $clientId, $clientSecret, $redirectUrl, array $allowed = [], ClientInterface $client = null)
+    public function __construct(Request $request, $clientId, $clientSecret, $redirectUrl, array $allowed = [], array $blocked = [], ClientInterface $client = null)
     {
         $this->request = $request;
         $this->clientId = $clientId;
         $this->redirectUrl = $redirectUrl;
         $this->clientSecret = $clientSecret;
         $this->allowed = $allowed;
+        $this->blocked = $blocked;
         $this->client = $client ?: new Client();
     }
 
@@ -216,6 +225,10 @@ class LoginProvider
 
         if ($this->allowed && !in_array($user['id'], $this->allowed)) {
             throw new NotWhitelistedException('The user is not whitelisted.');
+        }
+
+        if (in_array($user['id'], $this->blocked)) {
+            throw new IsBlacklistedException('The user is blacklisted.');
         }
 
         return array_merge($user, ['email' => $this->getEmail($token), 'token' => $token]);
