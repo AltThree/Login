@@ -11,10 +11,17 @@
 
 namespace AltThree\Login;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\TransferException;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Foundation\Application as LaravelApplication;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Lumen\Application as LumenApplication;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * This is the login service provider class.
@@ -76,7 +83,16 @@ class LoginServiceProvider extends ServiceProvider
             $allowed = $app->config->get('login.allowed', []);
             $blocked = $app->config->get('login.blocked', []);
 
-            $provider = new LoginProvider($request, $clientId, $clientSecret, $redirectUrl, $allowed, $blocked);
+            $stack = HandlerStack::create();
+            $stack->push(Middleware::retry(function ($retries, RequestInterface $request, ResponseInterface $response = null, TransferException $exception = null) {
+                return $retries < 3 && ($exception instanceof ConnectException || ($response && $response->getStatusCode() >= 500));
+            }, function ($retries) {
+                return (int) pow(2, $retries) * 1000;
+            }));
+
+            $client = new Client(['handler' => $stack]);
+
+            $provider = new LoginProvider($request, $clientId, $clientSecret, $redirectUrl, $allowed, $blocked, $client);
             $app->refresh('request', $provider, 'setRequest');
 
             return $provider;
