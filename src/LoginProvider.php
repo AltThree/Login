@@ -255,9 +255,9 @@ class LoginProvider
             $response = $this->client->get('https://api.github.com/user/emails?access_token='.$token, $options);
             $emails = (array) json_decode((string) $response->getBody(), true);
         } catch (Exception $e) {
-            throw new CannotAccessEmailsException('Unable to access the user\'s email addresses.');
+            throw new CannotAccessEmailsException('Unable to access the user\'s email addresses.', $e->getCode(), $e);
         } catch (Throwable $e) {
-            throw new CannotAccessEmailsException('Unable to access the user\'s email addresses.');
+            throw new CannotAccessEmailsException('Unable to access the user\'s email addresses.', $e->getCode(), $e);
         }
 
         foreach ($emails as $email) {
