@@ -23,9 +23,7 @@ Instead, you may of course manually update your require block and run `composer 
 }
 ```
 
-Once Alt Three Login is installed, you need to register the service provider. Open up `config/app.php` and add the following to the `providers` key.
-
-* `'AltThree\Login\LoginServiceProvider'`
+Once Alt Three Login is installed, you need to register the service provider. Open up `config/app.php` and add the `AltThree\Login\LoginServiceProvider` class to the `providers`.
 
 
 ## Configuration
