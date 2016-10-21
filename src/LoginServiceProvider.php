@@ -90,7 +90,7 @@ class LoginServiceProvider extends ServiceProvider
                 return (int) pow(2, $retries) * 1000;
             }));
 
-            $client = new Client(['handler' => $stack]);
+            $client = new Client(['handler' => $stack, 'connect_timeout' => 10, 'timeout' => 15]);
 
             $provider = new LoginProvider($request, $clientId, $clientSecret, $redirectUrl, $allowed, $blocked, $client);
             $app->refresh('request', $provider, 'setRequest');
