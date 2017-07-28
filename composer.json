@@ -25,6 +25,7 @@
         "guzzlehttp/guzzle": "^5.3.1|^6.2.1"
     },
     "require-dev": {
+        "graham-campbell/analyzer": "^1.0",
         "graham-campbell/testbench": "^4.0",
         "phpunit/phpunit": "^6.0"
     },
