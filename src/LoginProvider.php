@@ -95,7 +95,7 @@ class LoginProvider
      *
      * @return void
      */
-    public function __construct(Request $request, $clientId, $clientSecret, $redirectUrl, array $allowed = [], array $blocked = [], ClientInterface $client = null)
+    public function __construct(Request $request, string $clientId, string $clientSecret, string $redirectUrl, array $allowed = [], array $blocked = [], ClientInterface $client = null)
     {
         $this->request = $request;
         $this->clientId = $clientId;
@@ -131,7 +131,7 @@ class LoginProvider
      *
      * @return string
      */
-    protected function buildAuthUrlFromBase($url, $state, array $scopes = null)
+    protected function buildAuthUrlFromBase(string $url, string $state, array $scopes = null)
     {
         $query = [
             'client_id'     => $this->clientId,
@@ -181,7 +181,7 @@ class LoginProvider
      *
      * @return string
      */
-    protected function getAccessToken($code)
+    protected function getAccessToken(string $code)
     {
         $data = [
             'client_id'     => $this->clientId,
@@ -218,7 +218,7 @@ class LoginProvider
      *
      * @return string[]
      */
-    protected function getUserByToken($token)
+    protected function getUserByToken(string $token)
     {
         $options = ['headers' => ['Accept' => 'application/vnd.github.v3+json']];
 
@@ -248,7 +248,7 @@ class LoginProvider
      *
      * @return string
      */
-    protected function getEmail($token)
+    protected function getEmail(string $token)
     {
         try {
             $options = ['headers' => ['Accept' => 'application/vnd.github.v3+json']];
