@@ -163,7 +163,7 @@ class LoginProvider
      */
     public function user()
     {
-        $state = $this->request->getSession()->pull('state');
+        $state = (string) $this->request->getSession()->pull('state');
 
         if (strlen($state) !== 40 || $this->request->input('state') !== $state) {
             throw new InvalidStateException('We could not verify the request was genuine.');
