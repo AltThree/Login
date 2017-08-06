@@ -45,6 +45,11 @@
     "extra": {
         "branch-alias": {
             "dev-master": "2.0-dev"
+        },
+        "laravel": {
+            "providers": [
+                "AltThree\\Login\\LoginServiceProvider"
+            ]
         }
     },
     "minimum-stability": "dev",
