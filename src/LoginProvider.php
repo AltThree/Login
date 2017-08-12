@@ -119,7 +119,7 @@ class LoginProvider
     {
         $state = Str::random(40);
 
-        $this->request->getSession()->set('state', $state);
+        $this->request->getSession()->put('state', $state);
 
         return new RedirectResponse($this->buildAuthUrlFromBase('https://github.com/login/oauth/authorize', $state, $scopes));
     }
