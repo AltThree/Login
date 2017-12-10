@@ -13,11 +13,7 @@ declare(strict_types=1);
 
 namespace AltThree\Login;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Exception\TransferException;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
+use GrahamCampbell\GuzzleFactory\GuzzleFactory;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Foundation\Application as LaravelApplication;
 use Illuminate\Support\ServiceProvider;
@@ -84,15 +80,7 @@ class LoginServiceProvider extends ServiceProvider
             $redirectUrl = $app->config->get('login.redirect');
             $allowed = $app->config->get('login.allowed', []);
             $blocked = $app->config->get('login.blocked', []);
-
-            $stack = HandlerStack::create();
-            $stack->push(Middleware::retry(function ($retries, RequestInterface $request, ResponseInterface $response = null, TransferException $exception = null) {
-                return $retries < 3 && ($exception instanceof ConnectException || ($response && $response->getStatusCode() >= 500));
-            }, function ($retries) {
-                return (int) pow(2, $retries) * 1000;
-            }));
-
-            $client = new Client(['handler' => $stack, 'connect_timeout' => 10, 'timeout' => 15]);
+            $client = GuzzleFactory::make();
 
             $provider = new LoginProvider($request, $clientId, $clientSecret, $redirectUrl, $allowed, $blocked, $client);
             $app->refresh('request', $provider, 'setRequest');
