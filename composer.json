@@ -22,7 +22,7 @@
         "illuminate/contracts": "5.1.*|5.2.*|5.3.*|5.4.*|5.5.*",
         "illuminate/http": "5.1.*|5.2.*|5.3.*|5.4.*|5.5.*",
         "illuminate/support": "5.1.*|5.2.*|5.3.*|5.4.*|5.5.*",
-        "guzzlehttp/guzzle": "^5.3.1|^6.2.1"
+        "graham-campbell/guzzle-factory": "^2.2"
     },
     "require-dev": {
         "graham-campbell/analyzer": "^1.1",
