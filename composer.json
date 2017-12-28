@@ -22,7 +22,7 @@
         "illuminate/contracts": "5.1.*|5.2.*|5.3.*|5.4.*|5.5.*",
         "illuminate/http": "5.1.*|5.2.*|5.3.*|5.4.*|5.5.*",
         "illuminate/support": "5.1.*|5.2.*|5.3.*|5.4.*|5.5.*",
-        "graham-campbell/guzzle-factory": "^2.2"
+        "graham-campbell/guzzle-factory": "^3.0"
     },
     "require-dev": {
         "graham-campbell/analyzer": "^2.0",
@@ -44,7 +44,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.1-dev"
+            "dev-master": "2.2-dev"
         },
         "laravel": {
             "providers": [
