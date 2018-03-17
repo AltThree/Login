@@ -41,7 +41,7 @@ return [
     'connections' => [
 
         'github' => [
-            'provider' => 'gitlab',
+            'provider' => 'github',
             'id'       => 'your-client-id',
             'secret'   => 'your-client-secret',
             'redirect' => 'your-redirection-url',
