@@ -13,10 +13,10 @@ declare(strict_types=1);
 
 namespace AltThree\Login\Providers;
 
-use AltThree\Login\Models\User;
 use AltThree\Login\Exceptions\CannotAccessEmailsException;
 use AltThree\Login\Exceptions\InvalidEmailException;
 use AltThree\Login\Exceptions\NoEmailException;
+use AltThree\Login\Models\User;
 use Exception;
 use GuzzleHttp\ClientInterface;
 

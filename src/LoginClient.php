@@ -13,16 +13,16 @@ declare(strict_types=1);
 
 namespace AltThree\Login;
 
-use AltThree\Login\Providers\ProviderInterface;
 use AltThree\Login\Exceptions\InvalidStateException;
 use AltThree\Login\Exceptions\IsBlacklistedException;
 use AltThree\Login\Exceptions\NoAccessTokenException;
 use AltThree\Login\Exceptions\NotWhitelistedException;
 use AltThree\Login\Models\Config;
+use AltThree\Login\Providers\ProviderInterface;
 use GuzzleHttp\ClientInterface;
+use Illuminate\Contracts\Session\Session;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
-use Illuminate\Contracts\Session\Session;
 
 /**
  * This is the login client class.
@@ -159,7 +159,7 @@ class LoginClient
         ];
 
         $response = $this->client->post($this->provider->getTokenUrl(), [
-            'headers' => ['Accept' => 'application/json'],
+            'headers'     => ['Accept' => 'application/json'],
             'form_params' => $data,
         ]);
 
