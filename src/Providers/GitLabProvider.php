@@ -13,10 +13,10 @@ declare(strict_types=1);
 
 namespace AltThree\Login\Providers;
 
-use AltThree\Login\Models\User;
-use GuzzleHttp\ClientInterface;
 use AltThree\Login\Exceptions\InvalidEmailException;
 use AltThree\Login\Exceptions\NoEmailException;
+use AltThree\Login\Models\User;
+use GuzzleHttp\ClientInterface;
 
 /**
  * This is the gitlab provider interface.
