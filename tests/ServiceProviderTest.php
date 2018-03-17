@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace AltThree\Tests\Login;
 
-use AltThree\Login\LoginProvider;
+use AltThree\Login\LoginClient;
+use AltThree\Login\LoginFactory;
+use AltThree\Login\LoginManager;
 use AltThree\Login\LoginServiceProvider;
 use GrahamCampbell\TestBench\AbstractPackageTestCase;
 use GrahamCampbell\TestBenchCore\ServiceProviderTrait;
@@ -32,8 +34,25 @@ class ServiceProviderTest extends AbstractPackageTestCase
         return LoginServiceProvider::class;
     }
 
-    public function testLoginProviderIsInjectable()
+    public function testLoginFactoryIsInjectable()
     {
-        $this->assertIsInjectable(LoginProvider::class);
+        $this->assertIsInjectable(LoginFactory::class);
+    }
+
+    public function testLoginManagerIsInjectable()
+    {
+        $this->assertIsInjectable(LoginManager::class);
+    }
+
+    public function testBindings()
+    {
+        $this->assertIsInjectable(LoginClient::class);
+
+        $original = $this->app['login.connection'];
+        $this->app['login']->reconnect();
+        $new = $this->app['login.connection'];
+
+        $this->assertNotSame($original, $new);
+        $this->assertEquals($original, $new);
     }
 }

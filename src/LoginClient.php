@@ -1,0 +1,201 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of Alt Three Login.
+ *
+ * (c) Alt Three Services Limited
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace AltThree\Login;
+
+use AltThree\Login\Providers\ProviderInterface;
+use AltThree\Login\Exceptions\InvalidStateException;
+use AltThree\Login\Exceptions\IsBlacklistedException;
+use AltThree\Login\Exceptions\NoAccessTokenException;
+use AltThree\Login\Exceptions\NotWhitelistedException;
+use AltThree\Login\Models\Config;
+use GuzzleHttp\ClientInterface;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Str;
+use Illuminate\Contracts\Session\Session;
+
+/**
+ * This is the login client class.
+ *
+ * @author Graham Campbell <graham@alt-three.com>
+ */
+class LoginClient
+{
+    /**
+     * The underlying provider.
+     *
+     * @var \AltThree\Login\Providers\ProviderInterface
+     */
+    protected $provider;
+
+    /**
+     * The provider config.
+     *
+     * @var \AltThree\Login\Models\Config
+     */
+    protected $config;
+
+    /**
+     * The guzzle http client.
+     *
+     * @var \GuzzleHttp\ClientInterface
+     */
+    protected $client;
+
+    /**
+     * Create a new login client instance.
+     *
+     * @param \AltThree\Login\Providers\ProviderInterface $provider
+     * @param \AltThree\Login\Models\Config               $config
+     * @param \GuzzleHttp\ClientInterface                 $client
+     *
+     * @return void
+     */
+    public function __construct(ProviderInterface $provider, Config $config, ClientInterface $client)
+    {
+        $this->provider = $provider;
+        $this->config = $config;
+        $this->client = $client;
+    }
+
+    /**
+     * Redirect the user of the application to the provider's authentication screen.
+     *
+     * @param \Illuminate\Contracts\Session\Session $session
+     * @param string[]|null                         $scopes
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function redirect(Session $session, array $scopes = null)
+    {
+        $state = Str::random(40);
+
+        $session->put('state', $state);
+
+        return new RedirectResponse($this->buildAuthUrlFromBase($this->provider->getRedirectUrl(), $state, $scopes));
+    }
+
+    /**
+     * Get the authentication url for the provider.
+     *
+     * @param string        $url
+     * @param string        $state
+     * @param string[]|null $scopes
+     *
+     * @return string
+     */
+    protected function buildAuthUrlFromBase(string $url, string $state, array $scopes = null)
+    {
+        $query = [
+            'client_id'     => $this->config->clientId,
+            'redirect_uri'  => $this->config->redirectUrl,
+            'state'         => $state,
+            'response_type' => 'code',
+        ];
+
+        if ($scopes !== null) {
+            $query['scope'] = implode(',', $scopes);
+        }
+
+        return $url.'?'.http_build_query($query, '', '&');
+    }
+
+    /**
+     * Get the authenticated user's details.
+     *
+     * @param \Illuminate\Contracts\Session\Session $session
+     * @param string                                $state
+     * @param string                                $code
+     *
+     * @throws \AltThree\Login\Exceptions\CannotAccessEmailsException
+     * @throws \AltThree\Login\Exceptions\InvalidEmailException
+     * @throws \AltThree\Login\Exceptions\InvalidStateException
+     * @throws \AltThree\Login\Exceptions\IsBlacklistedException
+     * @throws \AltThree\Login\Exceptions\NoEmailException
+     * @throws \AltThree\Login\Exceptions\NotWhitelistedException
+     *
+     * @return \AltThree\Login\Models\User
+     */
+    public function user(Session $session, string $state, string $code)
+    {
+        $sessionState = (string) $session->pull('state');
+
+        // checking the session state is a sanity check to ensure we don't end
+        // up matching the empty string against the empty string due to expiry
+        if (strlen($sessionState) !== 40 || !hash_equals($sessionState, $state)) {
+            throw new InvalidStateException('We could not verify the request was genuine.');
+        }
+
+        // get the user model from the underlying provider
+        return $this->getUserByToken($this->getAccessToken($code));
+    }
+
+    /**
+     * Get the access token for the given code.
+     *
+     * @param string $code
+     *
+     * @throws \AltThree\Login\Exceptions\NoAccessTokenException
+     *
+     * @return string
+     */
+    protected function getAccessToken(string $code)
+    {
+        $data = [
+            'client_id'     => $this->config->clientId,
+            'client_secret' => $this->config->clientSecret,
+            'code'          => $code,
+            'redirect_uri'  => $this->config->redirectUrl,
+        ];
+
+        $response = $this->client->post($this->provider->getTokenUrl(), [
+            'headers' => ['Accept' => 'application/json'],
+            'form_params' => $data,
+        ]);
+
+        $data = (array) json_decode((string) $response->getBody(), true);
+
+        // ensure that a bearer access token was returned
+        if (!isset($data['access_token']) || !isset($data['token_type']) || $data['token_type'] !== 'bearer') {
+            throw new NoAccessTokenException('No access token was provided.');
+        }
+
+        return $data['access_token'];
+    }
+
+    /**
+     * Get the raw user for the given access token.
+     *
+     * @param string $token
+     *
+     * @throws \AltThree\Login\Exceptions\CannotAccessEmailsException
+     * @throws \AltThree\Login\Exceptions\InvalidEmailException
+     * @throws \AltThree\Login\Exceptions\IsBlacklistedException
+     * @throws \AltThree\Login\Exceptions\NoEmailException
+     * @throws \AltThree\Login\Exceptions\NotWhitelistedException
+     *
+     * @return string[]
+     */
+    protected function getUserByToken(string $token)
+    {
+        return $this->provider->getUserByToken($this->client, $token, function (int $id) {
+            if ($this->config->allowed && !in_array($user['id'], $this->config->allowed)) {
+                throw new NotWhitelistedException('The user is not whitelisted.');
+            }
+
+            if (in_array($user['id'], $this->config->blocked)) {
+                throw new IsBlacklistedException('The user is blacklisted.');
+            }
+        });
+    }
+}

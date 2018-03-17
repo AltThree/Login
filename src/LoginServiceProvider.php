@@ -61,32 +61,56 @@ class LoginServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->registerLoginProvider();
+        $this->registerLoginFactory();
+        $this->registerManager();
+        $this->registerBindings();
     }
 
     /**
-     * Register the login provider class.
+     * Register the login factory class.
      *
      * @return void
      */
-    protected function registerLoginProvider()
+    protected function registerLoginFactory()
     {
-        $this->app->singleton('login.provider', function (Container $app) {
-            $request = $app['request'];
-            $clientId = $app->config->get('login.id');
-            $clientSecret = $app->config->get('login.secret');
-            $redirectUrl = $app->config->get('login.redirect');
-            $allowed = $app->config->get('login.allowed', []);
-            $blocked = $app->config->get('login.blocked', []);
-            $client = GuzzleFactory::make();
-
-            $provider = new LoginProvider($request, $clientId, $clientSecret, $redirectUrl, $allowed, $blocked, $client);
-            $app->refresh('request', $provider, 'setRequest');
-
-            return $provider;
+        $this->app->singleton('login.factory', function () {
+            return new LoginFactory();
         });
 
-        $this->app->alias('login.provider', LoginProvider::class);
+        $this->app->alias('login.factory', LoginFactory::class);
+    }
+
+    /**
+     * Register the manager class.
+     *
+     * @return void
+     */
+    protected function registerManager()
+    {
+        $this->app->singleton('login', function (Container $app) {
+            $config = $app['config'];
+            $factory = $app['login.factory'];
+
+            return new LoginManager($config, $factory);
+        });
+
+        $this->app->alias('login', LoginManager::class);
+    }
+
+    /**
+     * Register the bindings.
+     *
+     * @return void
+     */
+    protected function registerBindings()
+    {
+        $this->app->bind('login.connection', function (Container $app) {
+            $manager = $app['login'];
+
+            return $manager->connection();
+        });
+
+        $this->app->alias('login.connection', LoginClient::class);
     }
 
     /**
@@ -97,7 +121,10 @@ class LoginServiceProvider extends ServiceProvider
     public function provides()
     {
         return [
-            'login.provider',
+            'login.factory',
+            'login',
+            'login.connection',
         ];
     }
 }
+    

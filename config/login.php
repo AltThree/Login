@@ -15,61 +15,49 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Client ID
+    | Default Connection Name
     |--------------------------------------------------------------------------
     |
-    | This is your application client id.
+    | Here you may specify which of the connections below you wish to use as
+    | your default connection for all work. Of course, you may use many
+    | connections at once using the manager class.
     |
     */
 
-    'id' => '',
+    'default' => 'github',
 
     /*
     |--------------------------------------------------------------------------
-    | Client Secret
+    | Login Connections
     |--------------------------------------------------------------------------
     |
-    | This is your application client secret.
+    | Here are each of the connections setup for your application. Example
+    | configuration has been included, but you may add as many connections as
+    | you would like. Note that the 2 supported providers are:
+    | "github" and "gitlab".
     |
     */
 
-    'secret' => '',
+    'connections' => [
 
-    /*
-    |--------------------------------------------------------------------------
-    | Redirection URL
-    |--------------------------------------------------------------------------
-    |
-    | This is where github sends people to after authenticating.
-    |
-    */
+        'github' => [
+            'provider' => 'gitlab',
+            'id'       => 'your-client-id',
+            'secret'   => 'your-client-secret',
+            'redirect' => 'your-redirection-url',
+            // 'allowed'  => [],
+            // 'blocked'  => [],
+        ],
 
-    'redirect' => '',
+        'gitlab' => [
+            'provider' => 'gitlab',
+            'id'       => 'your-client-id',
+            'secret'   => 'your-client-secret',
+            'redirect' => 'your-redirection-url',
+            // 'allowed'  => [],
+            // 'blocked'  => [],
+        ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Allowed Users
-    |--------------------------------------------------------------------------
-    |
-    | This defines list of allowed users. Empty means allow everyone.
-    |
-    | Default to [].
-    |
-    */
-
-    'allowed' => [],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Blocked Users
-    |--------------------------------------------------------------------------
-    |
-    | This defines list of blocked users.
-    |
-    | Default to [].
-    |
-    */
-
-    'blocked' => [],
+    ],
 
 ];
