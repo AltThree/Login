@@ -73,7 +73,7 @@ class GitLabProvider implements ProviderInterface
     public function getUserByToken(ClientInterface $client, string $token, callable $validator)
     {
         $response = $this->client->get(
-            'https://gitlab.example.com/api/v4/user',
+            'https://gitlab.com/api/v4/user',
             ['headers' => ['Accept' => 'application/json', 'Authorization' => "Bearer {$token}"]]
         );
 
