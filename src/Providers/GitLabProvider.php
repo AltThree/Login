@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace AltThree\Login\Providers;
 
 use AltThree\Login\Exceptions\InvalidEmailException;
+use AltThree\Login\Exceptions\NoAccessTokenException;
 use AltThree\Login\Exceptions\NoEmailException;
 use AltThree\Login\Models\User;
 use GuzzleHttp\ClientInterface;
@@ -65,6 +66,7 @@ class GitLabProvider implements ProviderInterface
      * @throws \AltThree\Login\Exceptions\CannotAccessEmailsException
      * @throws \AltThree\Login\Exceptions\InvalidEmailException
      * @throws \AltThree\Login\Exceptions\IsBlacklistedException
+     * @throws \AltThree\Login\Exceptions\NoAccessTokenException
      * @throws \AltThree\Login\Exceptions\NoEmailException
      * @throws \AltThree\Login\Exceptions\NotWhitelistedException
      *
@@ -72,10 +74,14 @@ class GitLabProvider implements ProviderInterface
      */
     public function getUserByToken(ClientInterface $client, string $token, callable $validator)
     {
-        $response = $client->get(
-            'https://gitlab.com/api/v4/user',
-            ['headers' => ['Accept' => 'application/json', 'Authorization' => "Bearer {$token}"]]
-        );
+        try {
+            $response = $client->get(
+                'https://gitlab.com/api/v4/user',
+                ['headers' => ['Accept' => 'application/json', 'Authorization' => "Bearer {$token}"]]
+            );
+        } catch (Exception $e) {
+            throw new NoAccessTokenException('The provided access token was not valid.', $e->getCode(), $e);
+        }
 
         $user = (array) json_decode((string) $response->getBody(), true);
 

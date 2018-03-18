@@ -15,6 +15,7 @@ namespace AltThree\Login\Providers;
 
 use AltThree\Login\Exceptions\CannotAccessEmailsException;
 use AltThree\Login\Exceptions\InvalidEmailException;
+use AltThree\Login\Exceptions\NoAccessTokenException;
 use AltThree\Login\Exceptions\NoEmailException;
 use AltThree\Login\Models\User;
 use Exception;
@@ -67,6 +68,7 @@ class GitHubProvider implements ProviderInterface
      * @throws \AltThree\Login\Exceptions\CannotAccessEmailsException
      * @throws \AltThree\Login\Exceptions\InvalidEmailException
      * @throws \AltThree\Login\Exceptions\IsBlacklistedException
+     * @throws \AltThree\Login\Exceptions\NoAccessTokenException
      * @throws \AltThree\Login\Exceptions\NoEmailException
      * @throws \AltThree\Login\Exceptions\NotWhitelistedException
      *
@@ -74,10 +76,14 @@ class GitHubProvider implements ProviderInterface
      */
     public function getUserByToken(ClientInterface $client, string $token, callable $validator)
     {
-        $response = $client->get(
-            'https://api.github.com/user?access_token='.$token,
-            ['headers' => ['Accept' => 'application/vnd.github.v3+json']]
-        );
+        try {
+            $response = $client->get(
+                'https://api.github.com/user?access_token='.$token,
+                ['headers' => ['Accept' => 'application/vnd.github.v3+json']]
+            );
+        } catch (Exception $e) {
+            throw new NoAccessTokenException('The provided access token was not valid.', $e->getCode(), $e);
+        }
 
         $user = (array) json_decode((string) $response->getBody(), true);
 

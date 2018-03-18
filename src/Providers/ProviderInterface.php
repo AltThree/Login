@@ -53,6 +53,7 @@ interface ProviderInterface
      * @throws \AltThree\Login\Exceptions\CannotAccessEmailsException
      * @throws \AltThree\Login\Exceptions\InvalidEmailException
      * @throws \AltThree\Login\Exceptions\IsBlacklistedException
+     * @throws \AltThree\Login\Exceptions\NoAccessTokenException
      * @throws \AltThree\Login\Exceptions\NoEmailException
      * @throws \AltThree\Login\Exceptions\NotWhitelistedException
      *

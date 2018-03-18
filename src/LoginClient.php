@@ -19,6 +19,7 @@ use AltThree\Login\Exceptions\NoAccessTokenException;
 use AltThree\Login\Exceptions\NotWhitelistedException;
 use AltThree\Login\Models\Config;
 use AltThree\Login\Providers\ProviderInterface;
+use Exception;
 use GuzzleHttp\ClientInterface;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Http\RedirectResponse;
@@ -158,10 +159,14 @@ class LoginClient
             'redirect_uri'  => $this->config->redirectUrl,
         ];
 
-        $response = $this->client->post($this->provider->getTokenUrl(), [
-            'headers'     => ['Accept' => 'application/json'],
-            'form_params' => $data,
-        ]);
+        try {
+            $response = $this->client->post($this->provider->getTokenUrl(), [
+                'headers'     => ['Accept' => 'application/json'],
+                'form_params' => array_merge($this->provider->getExtraTokenParams(), $data),
+            ]);
+        } catch (Exception $e) {
+            throw new NoAccessTokenException('We were unable to retrieve your access token.', $e->getCode(), $e);
+        }
 
         $data = (array) json_decode((string) $response->getBody(), true);
 
