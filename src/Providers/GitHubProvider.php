@@ -74,7 +74,7 @@ class GitHubProvider implements ProviderInterface
      */
     public function getUserByToken(ClientInterface $client, string $token, callable $validator)
     {
-        $response = $this->client->get(
+        $response = $client->get(
             'https://api.github.com/user?access_token='.$token,
             ['headers' => ['Accept' => 'application/vnd.github.v3+json']]
         );
@@ -83,7 +83,7 @@ class GitHubProvider implements ProviderInterface
 
         $validator($user['id']);
 
-        return new User($user['id'], $token, $this->getEmail($token), $user['login'], $user['name'] ?? null);
+        return new User($user['id'], $token, static::getEmail($client, $token), $user['login'], $user['name'] ?? null);
     }
 
     /**
@@ -98,7 +98,7 @@ class GitHubProvider implements ProviderInterface
      *
      * @return string
      */
-    protected function getEmail(ClientInterface $client, string $token)
+    protected static function getEmail(ClientInterface $client, string $token)
     {
         try {
             $response = $client->get(

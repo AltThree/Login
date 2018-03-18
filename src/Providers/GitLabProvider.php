@@ -72,7 +72,7 @@ class GitLabProvider implements ProviderInterface
      */
     public function getUserByToken(ClientInterface $client, string $token, callable $validator)
     {
-        $response = $this->client->get(
+        $response = $client->get(
             'https://gitlab.com/api/v4/user',
             ['headers' => ['Accept' => 'application/json', 'Authorization' => "Bearer {$token}"]]
         );
@@ -81,7 +81,7 @@ class GitLabProvider implements ProviderInterface
 
         $validator($user['id']);
 
-        return new User($user['id'], $token, $this->getEmail($user), $user['username'], $user['name'] ?? null);
+        return new User($user['id'], $token, static::getEmail($user), $user['username'], $user['name'] ?? null);
     }
 
     /**
@@ -94,7 +94,7 @@ class GitLabProvider implements ProviderInterface
      *
      * @return string
      */
-    protected function getEmail(array $user)
+    protected static function getEmail(array $user)
     {
         if (!isset($user['confirmed_at']) || !isset($user['email']) || strpos($user['email'], '@') === false) {
             throw new NoEmailException('Unable to find verified primary email address.');

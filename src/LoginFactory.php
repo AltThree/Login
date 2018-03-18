@@ -37,7 +37,7 @@ class LoginFactory
      */
     public function make(array $config)
     {
-        return new LoginClient($this->getProvider($config), $this->getConfig($config), GuzzleFactory::make());
+        return new LoginClient(static::getProvider($config), static::getConfig($config), GuzzleFactory::make());
     }
 
     /**
@@ -49,7 +49,7 @@ class LoginFactory
      *
      * @return \AltThree\Login\Providers\ProviderInterface
      */
-    protected function getProvider(array $config)
+    protected static function getProvider(array $config)
     {
         switch ($config['provider'] ?? null) {
             case 'github':
@@ -70,7 +70,7 @@ class LoginFactory
      *
      * @return \AltThree\Login\Models\Config
      */
-    protected function getConfig(array $config)
+    protected static function getConfig(array $config)
     {
         if (!array_key_exists('id', $config)) {
             throw new InvalidArgumentException('The login factory requires a client id.');
