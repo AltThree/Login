@@ -195,11 +195,11 @@ class LoginClient
     {
         return $this->provider->getUserByToken($this->client, $token, function (int $id) {
             if ($this->config->allowed && !in_array($id, $this->config->allowed)) {
-                throw new NotWhitelistedException("The user {$user['id']} is not whitelisted.");
+                throw new NotWhitelistedException("The user {$id} is not whitelisted.");
             }
 
-            if (in_array($user['id'], $this->config->blocked)) {
-                throw new IsBlacklistedException("The user {$user['id']} is blacklisted.");
+            if (in_array($id, $this->config->blocked)) {
+                throw new IsBlacklistedException("The user {$id} is blacklisted.");
             }
         });
     }
