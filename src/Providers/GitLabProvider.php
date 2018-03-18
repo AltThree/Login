@@ -44,7 +44,7 @@ class GitLabProvider implements ProviderInterface
      */
     public function getTokenUrl()
     {
-        return 'http://gitlab.com/oauth/token';
+        return 'https://gitlab.com/oauth/token';
     }
 
     /**
