@@ -64,7 +64,7 @@ class LoginFactory
     /**
      * Get the login config.
      *
-     * @param string[] $config
+     * @param array $config
      *
      * @throws \InvalidArgumentException
      *
