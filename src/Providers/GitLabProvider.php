@@ -17,6 +17,7 @@ use AltThree\Login\Exceptions\InvalidEmailException;
 use AltThree\Login\Exceptions\NoAccessTokenException;
 use AltThree\Login\Exceptions\NoEmailException;
 use AltThree\Login\Models\User;
+use Exception;
 use GuzzleHttp\ClientInterface;
 
 /**

@@ -190,7 +190,7 @@ class LoginClient
      * @throws \AltThree\Login\Exceptions\NoEmailException
      * @throws \AltThree\Login\Exceptions\NotWhitelistedException
      *
-     * @return string[]
+     * @return \AltThree\Login\Models\User
      */
     protected function getUserByToken(string $token)
     {
