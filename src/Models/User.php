@@ -71,5 +71,7 @@ final class User
         $this->id = $id;
         $this->token = $token;
         $this->email = $email;
+        $this->username = $username;
+        $this->name = $name;
     }
 }
