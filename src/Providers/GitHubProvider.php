@@ -119,7 +119,7 @@ class GitHubProvider implements ProviderInterface
 
         foreach ($emails as $email) {
             if ($email['primary'] && $email['verified']) {
-                if (strpos($user['email'], '@') !== false) {
+                if (strpos($email['email'], '@') !== false) {
                     if (strpos($email['email'], 'noreply') !== false) {
                         throw new InvalidEmailException('Unable to use a no reply primary email address.');
                     }
