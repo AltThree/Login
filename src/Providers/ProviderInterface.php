@@ -37,13 +37,6 @@ interface ProviderInterface
     public function getTokenUrl();
 
     /**
-     * Get any extra provider token params.
-     *
-     * @return string[]
-     */
-    public function getExtraTokenParams();
-
-    /**
      * Get the raw user for the given access token.
      *
      * @param \GuzzleHttp\ClientInterface $client

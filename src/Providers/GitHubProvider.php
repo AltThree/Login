@@ -49,16 +49,6 @@ class GitHubProvider implements ProviderInterface
     }
 
     /**
-     * Get any extra provider token params.
-     *
-     * @return string[]
-     */
-    public function getExtraTokenParams()
-    {
-        return [];
-    }
-
-    /**
      * Get the raw user for the given access token.
      *
      * @param \GuzzleHttp\ClientInterface $client

@@ -47,16 +47,6 @@ class GitLabProvider implements ProviderInterface
     }
 
     /**
-     * Get any extra provider token params.
-     *
-     * @return string[]
-     */
-    public function getExtraTokenParams()
-    {
-        return ['grant_type' => 'authorization_code'];
-    }
-
-    /**
      * Get the raw user for the given access token.
      *
      * @param \GuzzleHttp\ClientInterface $client
@@ -76,8 +66,8 @@ class GitLabProvider implements ProviderInterface
     {
         try {
             $response = $client->get(
-                'https://gitlab.com/api/v4/user',
-                ['headers' => ['Accept' => 'application/json', 'Authorization' => "Bearer {$token}"]]
+                'https://gitlab.com/api/v4/user?access_token='.$token,
+                ['headers' => ['Accept' => 'application/json']]
             );
         } catch (Exception $e) {
             throw new NoAccessTokenException('The provided access token was not valid.', $e->getCode(), $e);

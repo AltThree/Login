@@ -100,8 +100,8 @@ class LoginClient
         $query = [
             'client_id'     => $this->config->clientId,
             'redirect_uri'  => $this->config->redirectUrl,
-            'state'         => $state,
             'response_type' => 'code',
+            'state'         => $state,
         ];
 
         if ($scopes !== null) {
@@ -156,13 +156,14 @@ class LoginClient
             'client_id'     => $this->config->clientId,
             'client_secret' => $this->config->clientSecret,
             'code'          => $code,
+            'grant_type'    => 'authorization_code',
             'redirect_uri'  => $this->config->redirectUrl,
         ];
 
         try {
             $response = $this->client->post($this->provider->getTokenUrl(), [
                 'headers'     => ['Accept' => 'application/json'],
-                'form_params' => array_merge($this->provider->getExtraTokenParams(), $data),
+                'form_params' => $data,
             ]);
         } catch (Exception $e) {
             throw new NoAccessTokenException('We were unable to retrieve your access token.', $e->getCode(), $e);
