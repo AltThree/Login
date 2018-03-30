@@ -16,6 +16,8 @@ namespace AltThree\Login\Providers;
 use AltThree\Login\Exceptions\InvalidEmailException;
 use AltThree\Login\Exceptions\NoAccessTokenException;
 use AltThree\Login\Exceptions\NoEmailException;
+use AltThree\Login\Models\Metadata;
+use AltThree\Login\Models\Token;
 use AltThree\Login\Models\User;
 use Exception;
 use GuzzleHttp\ClientInterface;
@@ -48,11 +50,11 @@ class GitLabProvider implements ProviderInterface
     }
 
     /**
-     * Get the raw user for the given access token.
+     * Get the raw user for the given token.
      *
-     * @param \GuzzleHttp\ClientInterface $client
-     * @param string                      $token
-     * @param callable                    $validator
+     * @param \GuzzleHttp\ClientInterface  $client
+     * @param \AltThree\Login\Models\Token $token
+     * @param callable                     $validator
      *
      * @throws \AltThree\Login\Exceptions\CannotAccessEmailsException
      * @throws \AltThree\Login\Exceptions\InvalidEmailException
@@ -63,11 +65,11 @@ class GitLabProvider implements ProviderInterface
      *
      * @return \AltThree\Login\Models\User
      */
-    public function getUserByToken(ClientInterface $client, string $token, callable $validator)
+    public function getUserByToken(ClientInterface $client, Token $token, callable $validator)
     {
         try {
             $response = $client->get(
-                'https://gitlab.com/api/v4/user?access_token='.$token,
+                'https://gitlab.com/api/v4/user?access_token='.$token->access,
                 ['headers' => ['Accept' => 'application/json']]
             );
         } catch (Exception $e) {
@@ -78,7 +80,9 @@ class GitLabProvider implements ProviderInterface
 
         $validator($user['id']);
 
-        return new User($user['id'], $token, static::getEmail($user), $user['username'], $user['name'] ?? null);
+        $metadata = new Metadata(static::getEmail($user), $user['username'], $user['name'] ?? null);
+
+        return new User($user['id'], $token, $metadata);
     }
 
     /**

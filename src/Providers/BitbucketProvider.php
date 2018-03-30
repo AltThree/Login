@@ -20,15 +20,16 @@ use AltThree\Login\Exceptions\NoEmailException;
 use AltThree\Login\Models\Metadata;
 use AltThree\Login\Models\Token;
 use AltThree\Login\Models\User;
+use AltThree\Uuid\UuidConverter;
 use Exception;
 use GuzzleHttp\ClientInterface;
 
 /**
- * This is the github provider interface.
+ * This is the bitbucket provider interface.
  *
  * @author Graham Campbell <graham@alt-three.com>
  */
-class GitHubProvider implements ProviderInterface
+class BitbucketProvider implements ProviderInterface
 {
     /**
      * Get the authentication provider's redirect url.
@@ -37,7 +38,7 @@ class GitHubProvider implements ProviderInterface
      */
     public function getRedirectUrl()
     {
-        return 'https://github.com/login/oauth/authorize';
+        return 'https://bitbucket.org/site/oauth2/authorize';
     }
 
     /**
@@ -47,7 +48,7 @@ class GitHubProvider implements ProviderInterface
      */
     public function getTokenUrl()
     {
-        return 'https://github.com/login/oauth/access_token';
+        return 'https://bitbucket.org/site/oauth2/access_token';
     }
 
     /**
@@ -70,8 +71,8 @@ class GitHubProvider implements ProviderInterface
     {
         try {
             $response = $client->get(
-                'https://api.github.com/user?access_token='.$token->access,
-                ['headers' => ['Accept' => 'application/vnd.github.v3+json']]
+                'https://api.bitbucket.org/2.0/user?access_token='.$token->access,
+                ['headers' => ['Accept' => 'application/json']]
             );
         } catch (Exception $e) {
             throw new NoAccessTokenException('The provided access token was not valid.', $e->getCode(), $e);
@@ -79,11 +80,13 @@ class GitHubProvider implements ProviderInterface
 
         $user = (array) json_decode((string) $response->getBody(), true);
 
-        $validator($user['id']);
+        $id = UuidConverter::convert($user['uuid']);
 
-        $metadata = new Metadata(static::getEmail($client, $token), $user['login'], $user['name'] ?? null);
+        $validator($id);
 
-        return new User($user['id'], $token, $metadata);
+        $metadata = new Metadata(static::getEmail($client, $token), $user['username'], $user['display_name'] ?? null);
+
+        return new User($id, $token, $metadata);
     }
 
     /**
@@ -102,8 +105,8 @@ class GitHubProvider implements ProviderInterface
     {
         try {
             $response = $client->get(
-                'https://api.github.com/user/emails?access_token='.$token->access,
-                ['headers' => ['Accept' => 'application/vnd.github.v3+json']]
+                'https://bitbucket.org/api/2.0/user/emails?pagelen=100&access_token='.$token->access,
+                ['headers' => ['Accept' => 'application/json']]
             );
 
             $emails = (array) json_decode((string) $response->getBody(), true);
@@ -111,8 +114,8 @@ class GitHubProvider implements ProviderInterface
             throw new CannotAccessEmailsException('Unable to access the user\'s email addresses.', $e->getCode(), $e);
         }
 
-        foreach ($emails as $email) {
-            if ($email['primary'] && $email['verified'] && strpos($email['email'], '@') !== false) {
+        foreach ($emails['values'] as $email) {
+            if ($email['is_primary'] && $email['is_confirmed'] && strpos($email['email'], '@') !== false) {
                 if (strpos($email['email'], 'noreply') !== false) {
                     throw new InvalidEmailException('Unable to use a no reply primary email address.');
                 }

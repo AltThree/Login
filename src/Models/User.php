@@ -28,50 +28,32 @@ final class User
     public $id;
 
     /**
-     * The user's access token.
+     * The user's token.
      *
-     * @param string
+     * @param \AltThree\Login\Models\Token
      */
     public $token;
 
     /**
-     * The user's email address.
+     * The user's metadata.
      *
-     * @param string
+     * @param \AltThree\Login\Models\Metadata
      */
-    public $email;
-
-    /**
-     * The user's username.
-     *
-     * @param string
-     */
-    public $username;
-
-    /**
-     * The user's real name.
-     *
-     * @param string|null
-     */
-    public $name;
+    public $metadata;
 
     /**
      * Create a new user model instance.
      *
-     * @param int         $id
-     * @param string      $token
-     * @param string      $email
-     * @param string      $username
-     * @param string|null $name
+     * @param int                             $id
+     * @param \AltThree\Login\Models\Token    $token
+     * @param \AltThree\Login\Models\Metadata $metadata
      *
      * @return void
      */
-    public function __construct(int $id, string $token, string $email, string $username, string $name = null)
+    public function __construct(int $id, Token $token, Metadata $metadata)
     {
         $this->id = $id;
         $this->token = $token;
-        $this->email = $email;
-        $this->username = $username;
-        $this->name = $name;
+        $this->metadata = $metadata;
     }
 }

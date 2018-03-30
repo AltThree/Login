@@ -58,6 +58,15 @@ return [
             // 'blocked'  => [],
         ],
 
+        'bitbucket' => [
+            'provider' => 'bitbucket',
+            'id'       => 'your-client-id',
+            'secret'   => 'your-client-secret',
+            'redirect' => 'your-redirection-url',
+            // 'allowed'  => [],
+            // 'blocked'  => [],
+        ],
+
     ],
 
 ];

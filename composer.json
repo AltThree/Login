@@ -1,7 +1,7 @@
 {
     "name": "alt-three/login",
-    "description": "A GitHub Login Provider For Laravel 5",
-    "keywords": ["Login", "GitHub", "Alt Three"],
+    "description": "An OAuth 2 Provider For Laravel 5",
+    "keywords": ["Login", "GitHub", "GitLab", "Bitbucket", "OAuth2", "Alt Three"],
     "license": "MIT",
     "authors": [
         {
@@ -18,9 +18,13 @@
         "graham-campbell/manager": "^4.0"
     },
     "require-dev": {
+        "alt-three/uuid": "^1.0",
         "graham-campbell/analyzer": "^2.0",
         "graham-campbell/testbench": "^5.0",
         "phpunit/phpunit": "^6.5|^7.0"
+    },
+    "suggest": {
+        "alt-three/uuid": "Required to use the bitbucket provider (^1.0)."
     },
     "autoload": {
         "psr-4": {

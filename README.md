@@ -1,6 +1,8 @@
 # Alt Three Login
 
-A GitHub login provider for Laravel 5.
+An OAuth 2 login provider for Laravel 5.
+
+We currently support [GitHub](https://github.com/), [GitLab](https://gitlab.com/) and [Bitbucket](https://bitbucket.org/).
 
 
 ## Installation
@@ -14,6 +16,12 @@ $ composer require alt-three/login
 ```
 
 Once installed, if you are not using automatic package discovery, then you need to register the `AltThree\Login\LoginServiceProvider` service provider in your `config/app.php`.
+
+Finally, if you want to use the [Bitbucket](https://bitbucket.org/) provider, you'll also need to install [Alt Three UUID](https://github.com/AltThree/Uuid) package:
+
+```bash
+$ composer require alt-three/uuid
+```
 
 
 ## Configuration

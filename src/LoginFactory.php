@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace AltThree\Login;
 
 use AltThree\Login\Models\Config;
+use AltThree\Login\Providers\BitbucketProvider;
 use AltThree\Login\Providers\GitHubProvider;
 use AltThree\Login\Providers\GitLabProvider;
 use GrahamCampbell\GuzzleFactory\GuzzleFactory;
@@ -56,6 +57,8 @@ class LoginFactory
                 return new GitHubProvider();
             case 'gitlab':
                 return new GitLabProvider();
+            case 'bitbucket':
+                return new BitbucketProvider();
         }
 
         throw new InvalidArgumentException('The login factory requires a valid provider.');

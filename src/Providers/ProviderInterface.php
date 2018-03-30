@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace AltThree\Login\Providers;
 
+use AltThree\Login\Models\Token;
 use GuzzleHttp\ClientInterface;
 
 /**
@@ -37,11 +38,11 @@ interface ProviderInterface
     public function getTokenUrl();
 
     /**
-     * Get the raw user for the given access token.
+     * Get the raw user for the given token.
      *
-     * @param \GuzzleHttp\ClientInterface $client
-     * @param string                      $token
-     * @param callable                    $validator
+     * @param \GuzzleHttp\ClientInterface  $client
+     * @param \AltThree\Login\Models\Token $token
+     * @param callable                     $validator
      *
      * @throws \AltThree\Login\Exceptions\CannotAccessEmailsException
      * @throws \AltThree\Login\Exceptions\InvalidEmailException
@@ -52,5 +53,5 @@ interface ProviderInterface
      *
      * @return \AltThree\Login\Models\User
      */
-    public function getUserByToken(ClientInterface $client, string $token, callable $validator);
+    public function getUserByToken(ClientInterface $client, Token $token, callable $validator);
 }

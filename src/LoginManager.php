@@ -21,6 +21,8 @@ use Illuminate\Contracts\Config\Repository;
  *
  * @method \Illuminate\Http\RedirectResponse redirect(\Illuminate\Contracts\Session\Session $session, array $scopes = null)
  * @method \AltThree\Login\Models\User user(\Illuminate\Contracts\Session\Session $session, string $state, string $code)
+ * @method \AltThree\Login\Models\Token getToken(string $code)
+ * @method \AltThree\Login\Models\Token refreshToken(string $refresh)
  *
  * @author Graham Campbell <graham@alt-three.com>
  */

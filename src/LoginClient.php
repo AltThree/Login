@@ -18,6 +18,7 @@ use AltThree\Login\Exceptions\IsBlacklistedException;
 use AltThree\Login\Exceptions\NoAccessTokenException;
 use AltThree\Login\Exceptions\NotWhitelistedException;
 use AltThree\Login\Models\Config;
+use AltThree\Login\Models\Token;
 use AltThree\Login\Providers\ProviderInterface;
 use Exception;
 use GuzzleHttp\ClientInterface;
@@ -122,6 +123,7 @@ class LoginClient
      * @throws \AltThree\Login\Exceptions\InvalidEmailException
      * @throws \AltThree\Login\Exceptions\InvalidStateException
      * @throws \AltThree\Login\Exceptions\IsBlacklistedException
+     * @throws \AltThree\Login\Exceptions\NoAccessTokenException
      * @throws \AltThree\Login\Exceptions\NoEmailException
      * @throws \AltThree\Login\Exceptions\NotWhitelistedException
      *
@@ -138,32 +140,61 @@ class LoginClient
         }
 
         // get the user model from the underlying provider
-        return $this->getUserByToken($this->getAccessToken($code));
+        return $this->getUserByToken($this->getToken($code));
     }
 
     /**
-     * Get the access token for the given code.
+     * Get a new token, given an authorization code.
      *
      * @param string $code
      *
      * @throws \AltThree\Login\Exceptions\NoAccessTokenException
      *
-     * @return string
+     * @return \AltThree\Login\Models\Token
      */
-    protected function getAccessToken(string $code)
+    public function getToken(string $code)
     {
-        $data = [
+        return $this->requestToken([
             'client_id'     => $this->config->clientId,
             'client_secret' => $this->config->clientSecret,
             'code'          => $code,
             'grant_type'    => 'authorization_code',
             'redirect_uri'  => $this->config->redirectUrl,
-        ];
+        ]);
+    }
 
+    /**
+     * Get a new token, given a refresh token.
+     *
+     * @param string $refresh
+     *
+     * @throws \AltThree\Login\Exceptions\NoAccessTokenException
+     *
+     * @return \AltThree\Login\Models\Token
+     */
+    public function refreshToken(string $refresh)
+    {
+        return $this->requestToken([
+            'grant_type'    => 'refresh_token',
+            'refresh_token' => $refresh,
+        ]);
+    }
+
+    /**
+     * Request the token for the given params.
+     *
+     * @param array $params
+     *
+     * @throws \AltThree\Login\Exceptions\NoAccessTokenException
+     *
+     * @return \AltThree\Login\Models\Token
+     */
+    protected function requestToken(array $params)
+    {
         try {
             $response = $this->client->post($this->provider->getTokenUrl(), [
                 'headers'     => ['Accept' => 'application/json'],
-                'form_params' => $data,
+                'form_params' => $params,
             ]);
         } catch (Exception $e) {
             throw new NoAccessTokenException('We were unable to retrieve your access token.', $e->getCode(), $e);
@@ -176,13 +207,13 @@ class LoginClient
             throw new NoAccessTokenException('No access token was provided.');
         }
 
-        return $data['access_token'];
+        return new Token($data['access_token'], $data['refresh_token'] ?? null, $data['expires_in'] ?? null);
     }
 
     /**
      * Get the raw user for the given access token.
      *
-     * @param string $token
+     * @param \AltThree\Login\Models\Token $token
      *
      * @throws \AltThree\Login\Exceptions\CannotAccessEmailsException
      * @throws \AltThree\Login\Exceptions\InvalidEmailException
@@ -192,7 +223,7 @@ class LoginClient
      *
      * @return \AltThree\Login\Models\User
      */
-    protected function getUserByToken(string $token)
+    protected function getUserByToken(Token $token)
     {
         return $this->provider->getUserByToken($this->client, $token, function (int $id) {
             if ($this->config->allowed && !in_array($id, $this->config->allowed)) {
