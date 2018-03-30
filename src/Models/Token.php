@@ -52,7 +52,7 @@ final class Token
      */
     public function __construct(string $access, string $refresh = null, int $lifetime = null)
     {
-        $this->access= $access;
+        $this->access = $access;
         $this->refresh = $refresh;
         $this->lifetime = $lifetime;
     }
