@@ -155,11 +155,9 @@ class LoginClient
     public function getToken(string $code)
     {
         return $this->requestToken([
-            'client_id'     => $this->config->clientId,
-            'client_secret' => $this->config->clientSecret,
-            'code'          => $code,
-            'grant_type'    => 'authorization_code',
-            'redirect_uri'  => $this->config->redirectUrl,
+            'code'         => $code,
+            'grant_type'   => 'authorization_code',
+            'redirect_uri' => $this->config->redirectUrl,
         ]);
     }
 
@@ -191,10 +189,15 @@ class LoginClient
      */
     protected function requestToken(array $params)
     {
+        $client = [
+            'client_id'     => $this->config->clientId,
+            'client_secret' => $this->config->clientSecret,
+        ];
+
         try {
             $response = $this->client->post($this->provider->getTokenUrl(), [
                 'headers'     => ['Accept' => 'application/json'],
-                'form_params' => $params,
+                'form_params' => array_merge($client, $params),
             ]);
         } catch (Exception $e) {
             throw new NoAccessTokenException('We were unable to retrieve your access token.', $e->getCode(), $e);
